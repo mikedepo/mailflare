@@ -23,17 +23,28 @@ async function readStored(env: CloudflareEnv): Promise<StoredAws | null> {
 	try { return JSON.parse(row.awsConfig) as StoredAws; } catch { return null; }
 }
 
+/**
+ * Optional SES sending options from the environment, applied whichever source the
+ * credentials come from: a configuration set and a tenant to name on every send.
+ */
+export function getSesSendingOptions(env: CloudflareEnv): Pick<AwsConfig, "configurationSet" | "tenantName"> {
+	const vars = env as unknown as Record<string, string | undefined>;
+	const configurationSet = vars.AWS_SES_CONFIGURATION_SET?.trim();
+	const tenantName = vars.AWS_SES_TENANT_NAME?.trim();
+	return { ...(configurationSet ? { configurationSet } : {}), ...(tenantName ? { tenantName } : {}) };
+}
+
 /** The saved AWS credentials, falling back to AWS_* environment variables. */
 export async function getAwsConfig(env: CloudflareEnv): Promise<AwsConfig | null> {
 	const stored = await readStored(env);
 	if (stored?.accessKeyId && stored.secretAccessKey && stored.region) {
-		return { accessKeyId: stored.accessKeyId, secretAccessKey: stored.secretAccessKey, region: stored.region };
+		return { accessKeyId: stored.accessKeyId, secretAccessKey: stored.secretAccessKey, region: stored.region, ...getSesSendingOptions(env) };
 	}
 	const vars = env as unknown as Record<string, string | undefined>;
 	const accessKeyId = vars.AWS_ACCESS_KEY_ID?.trim();
 	const secretAccessKey = vars.AWS_SECRET_ACCESS_KEY?.trim();
 	const region = (vars.AWS_REGION ?? vars.AWS_DEFAULT_REGION)?.trim();
-	return accessKeyId && secretAccessKey && region ? { accessKeyId, secretAccessKey, region } : null;
+	return accessKeyId && secretAccessKey && region ? { accessKeyId, secretAccessKey, region, ...getSesSendingOptions(env) } : null;
 }
 
 export async function requireAwsConfig(env: CloudflareEnv): Promise<AwsConfig> {

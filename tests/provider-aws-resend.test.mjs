@@ -204,5 +204,22 @@ test("SES send maps the message and returns the Message-ID SES will use", async 
 		assert.equal(sent.Content.Simple.Attachments[0].RawContent, Buffer.from("hello").toString("base64"));
 		const eu = await sesLib.sendSesEmail({ ...creds, region: "eu-west-1" }, { from: "a@example.com", to: ["b@example.net"], subject: "s", text: "t" });
 		assert.equal(eu.messageId, "<0100abc@eu-west-1.amazonses.com>");
+		assert.equal(sent.ConfigurationSetName, undefined);
+		assert.equal(sent.TenantName, undefined);
+	} finally { mock.restore(); }
+});
+
+test("SES send and identity creation name the configured configuration set and tenant", async () => {
+	const mock = mockAws(({ url }) => ({ body: JSON.stringify(url.pathname.endsWith("/identities") ? { DkimAttributes: { Tokens: [] } } : { MessageId: "0100abc" }) }));
+	try {
+		const scoped = { ...creds, configurationSet: "mailflare", tenantName: "mailflare" };
+		await sesLib.sendSesEmail(scoped, { from: "a@example.com", to: ["b@example.net"], subject: "s", text: "t" });
+		const sent = JSON.parse(mock.calls[0].body);
+		assert.equal(sent.ConfigurationSetName, "mailflare");
+		assert.equal(sent.TenantName, "mailflare");
+		await sesLib.createSesIdentity({ ...creds, configurationSet: "mailflare" }, "example.com");
+		const created = JSON.parse(mock.calls[1].body);
+		assert.equal(created.EmailIdentity, "example.com");
+		assert.equal(created.ConfigurationSetName, "mailflare");
 	} finally { mock.restore(); }
 });

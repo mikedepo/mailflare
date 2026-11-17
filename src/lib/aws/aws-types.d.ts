@@ -6,6 +6,10 @@ export type AwsCredentials = {
 
 export type AwsConfig = AwsCredentials & {
 	region: string;
+	/** SES configuration set named on every send and on identities Mailflare creates (`AWS_SES_CONFIGURATION_SET`). */
+	configurationSet?: string;
+	/** SES tenant named on every send (`AWS_SES_TENANT_NAME`). */
+	tenantName?: string;
 };
 
 export type AwsConfigStatus = {

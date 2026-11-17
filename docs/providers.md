@@ -52,6 +52,8 @@ Only the sending statements are needed if you use SES just for sending.
 
 **Sending.** Setup creates the domain's SES identity, publishes its three DKIM CNAME records to the Cloudflare zone, and tracks verification. New AWS accounts start in the **SES sandbox**, where SES delivers only to verified addresses; Mailflare shows a warning row until you request production access in the SES console. Replies thread because Mailflare stores the Message-ID SES assigns (`<id@email.amazonses.com>` in us-east-1, `<id@region.amazonses.com>` elsewhere).
 
+To keep this installation's sending apart from other applications in the same AWS account, set `AWS_SES_CONFIGURATION_SET` and, for an [SES tenant](https://docs.aws.amazon.com/ses/latest/dg/tenants.html), `AWS_SES_TENANT_NAME`. Every send then names them, so the configuration set's event destinations and the tenant's reputation policy apply to this installation alone. SES refuses a send that names a tenant unless the domain identity and the configuration set are associated with that tenant; create those associations in SES once the identity exists.
+
 **Receiving.** SES can only receive in some regions (for example us-east-1, us-west-2 and eu-west-1); Mailflare rejects the others. Setup creates, idempotently:
 
 1. an S3 bucket (`mailflare-inbound-<account>-<region>`) that only SES may write to, with a one-day expiry for leftovers (best effort);
@@ -91,6 +93,8 @@ You cannot clean up the provider that is currently selected.
 |---|---|
 | `RESEND_API_KEY` | Resend key used when none is saved in the app |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | SES credentials used when none are saved in the app |
+| `AWS_SES_CONFIGURATION_SET` | Optional SES configuration set named on every send (`ConfigurationSetName`) and on identities Mailflare creates |
+| `AWS_SES_TENANT_NAME` | Optional SES tenant named on every send (`TenantName`) |
 | `APP_URL` | Public HTTPS address; required for Resend and SES receiving, because the providers call this app |
 
 Settings saved in the app take precedence over these variables. Keys saved in the app are stored as plain text in the `app_settings` table (as the AI provider key already is), so protect database backups accordingly.
