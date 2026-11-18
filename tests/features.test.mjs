@@ -64,7 +64,7 @@ test("activation routes and hostname referral are removed; source and copyright 
         assert.equal(existsSync(join(root, path)), false, path);
     }
     const footer = readFileSync(join(root, "src/components/sidebar-footer.tsx"), "utf8");
-    assert.ok(footer.includes('href="https://github.com/mikedepo/mailflare"'));
+    assert.ok(footer.includes('href="https://github.com/mikedepo/mailflare/tree/railway-deploy-unlocked"'));
     assert.ok(!footer.includes("location.hostname"));
     assert.ok(readFileSync(join(root, "LICENSE"), "utf8").includes("Copyright (C) 2026 Hieu Nguyen"));
     assert.ok(readFileSync(join(root, "wrangler.jsonc"), "utf8").includes('"send_metrics": false'));
