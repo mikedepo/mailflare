@@ -106,10 +106,13 @@ export async function setupSesReceiving(
 			},
 		],
 	});
-	const subscriptions = await listSubscriptions(config, state.topicArn);
-	if (!subscriptions.some((subscription) => subscription.endpoint === state.endpoint)) {
-		await subscribeHttps(config, state.topicArn, state.endpoint);
-	}
+	// SNS posts the SubscriptionConfirmation as soon as Subscribe returns, and /api/inbound/ses
+	// refuses it (403) until the token and topic are saved, so save them first.
+	await saveState(env, state);
+	const subscription = (await listSubscriptions(config, state.topicArn)).find((item) => item.endpoint === state.endpoint);
+	// Subscribing a still-pending endpoint again makes SNS send a new confirmation, so running
+	// Setup again repairs a subscription whose first confirmation was refused.
+	if (!subscription?.confirmed) await subscribeHttps(config, state.topicArn, state.endpoint);
 
 	// Only one rule set is active per region. Use the account's own if it has one
 	// (adding our rule beside theirs); otherwise create and activate ours.

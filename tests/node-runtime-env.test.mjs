@@ -9,7 +9,8 @@ import test from "node:test";
 // while it works on Workers, where every var and secret is on env.
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+// Only comments that start a line: a /* or // inside a string (an ARN such as arn:aws:s3:::bucket/*, a URL) stays code.
+const stripComments = (src) => src.replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, "").replace(/^[ \t]*\/\/.*$/gm, "");
 
 // Workers-only bindings: Node reaches the database through DATABASE_URL instead.
 const WORKERS_ONLY = new Set(["HYPERDRIVE", "DB_PRIMARY"]);
