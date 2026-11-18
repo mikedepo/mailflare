@@ -42,8 +42,13 @@ export async function POST(
 			return NextResponse.json({ error: "This message is already on its way" }, { status: 409 });
 		}
 	} catch (error) {
+		console.error(`Send now failed for message ${message.id}`, error);
 		const detail = error instanceof Error ? error.message : "Send failed";
-		return NextResponse.json({ error: detail }, { status: 500 });
+		// When the provider refused the message (an SES sandbox recipient, say), deliverEmail has
+		// already marked it failed, so the answer is final: a 4xx lets the composer show the reason.
+		// The composer reads a 5xx as "maybe still queued" and reports only a generic failure.
+		const [after] = await db.select({ status: messages.status }).from(messages).where(eq(messages.id, message.id)).limit(1);
+		return NextResponse.json({ error: detail }, { status: after?.status === "failed" ? 422 : 500 });
 	}
 	return NextResponse.json({ ok: true });
 }
