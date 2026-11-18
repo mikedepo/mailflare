@@ -41,7 +41,9 @@ export function PoweredBy({ className = "px-1" }: { className?: string }) {
       <p className={`${className} text-[11px] text-neutral-500`}>
         {t("navigation.poweredBy")}{" "}
         <a
-          href="https://github.com/mikedepo/mailflare"
+          // AGPL section 13: offer the source of the version this server runs. The fork's default
+          // branch (main) is plain upstream, so link the branch this build comes from.
+          href="https://github.com/mikedepo/mailflare/tree/railway-deploy-unlocked"
           target="_blank"
           className="hover:underline text-neutral-500"
           rel="noreferrer"
