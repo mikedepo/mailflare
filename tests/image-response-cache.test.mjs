@@ -11,7 +11,7 @@ const mocks = {
 	"@/db": "export function getDb() { return globalThis.imageResponseTest.db; }",
 	"@/lib/cloudflare": "export async function getEnvAsync() { return globalThis.imageResponseTest.env; }",
 	"@/lib/branding/service": "export const APP_SETTINGS_ID = 'app';",
-	"@/lib/licenses/service": "export async function getLicenseEntitlements() { return { canCustomizeBranding: globalThis.imageResponseTest.custom }; }",
+	"@/lib/features/service": "export async function getFeatureEntitlements() { return { canCustomizeBranding: globalThis.imageResponseTest.custom }; }",
 };
 await build({
 	stdin: {
