@@ -98,6 +98,7 @@ export function createNodeRuntime(): NodeRuntime {
 		VAPID_PUBLIC_KEY: optional("VAPID_PUBLIC_KEY"),
 		VAPID_PRIVATE_KEY: optional("VAPID_PRIVATE_KEY"),
 		VAPID_SUBJECT: optional("VAPID_SUBJECT"),
+		PUSH_MUTED_ADDRESSES: optional("PUSH_MUTED_ADDRESSES"),
 	} as unknown as CloudflareEnv;
 	const storageEnv = withDatabase(withStorage(env));
 	realtime.bindEnv(storageEnv);

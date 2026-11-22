@@ -86,4 +86,6 @@ interface CloudflareEnv {
 	VAPID_PRIVATE_KEY?: string;
 	/** Contact URI for VAPID, e.g. mailto:admin@example.com or https://mail.example.com. */
 	VAPID_SUBJECT?: string;
+	/** Inboxes that send no push notification for new mail, comma- or space-separated (src/lib/push/muted.ts). */
+	PUSH_MUTED_ADDRESSES?: string;
 }

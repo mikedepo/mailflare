@@ -54,6 +54,9 @@ export async function notifyUsersOfNewMessage(
 	env: CloudflareEnv,
 	userIds: string[],
 	payload: NewMessageNotification | AgentDraftNotification,
+	// push: false still updates open tabs in real time but sends no Web Push or native push
+	// (an inbox listed in PUSH_MUTED_ADDRESSES).
+	options: { push?: boolean } = {},
 ): Promise<void> {
 	// Next dev uses a bindings-only proxy; realtime delivery runs in worker.ts.
 	if (!env.REALTIME) return;
@@ -66,7 +69,7 @@ export async function notifyUsersOfNewMessage(
 				body: JSON.stringify(payload),
 			});
 		}),
-		...(payload.type === "agent_draft" ? [] : [sendPushNotifications(env, userIds, payload), sendNativePush(env, userIds, payload)]),
+		...(payload.type === "agent_draft" || options.push === false ? [] : [sendPushNotifications(env, userIds, payload), sendNativePush(env, userIds, payload)]),
 	]);
 	for (const result of results) {
 		if (result.status === "rejected") console.error("New-message notification failed", result.reason);

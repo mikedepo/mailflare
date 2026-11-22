@@ -116,6 +116,7 @@ and the DNS page shows what to set by hand.
 | `VAPID_PUBLIC_KEY` | unset | Public Web Push application-server key |
 | `VAPID_PRIVATE_KEY` | unset | Secret Web Push application-server key |
 | `VAPID_SUBJECT` | unset | Web Push contact URI (`mailto:` or HTTPS) |
+| `PUSH_MUTED_ADDRESSES` | unset | Inbox addresses whose new mail sends no push notification, separated by commas (for example DMARC report inboxes). The mail still arrives and shows in the app |
 | `AI_BASE_URL` | unset | OpenAI-compatible model API base URL for the assistant |
 | `AI_API_KEY` | unset | Server-only key for that model API |
 | `AI_MODEL` | `gpt-4o-mini` | Model ID supported by the configured API |

@@ -30,6 +30,7 @@ import {
 } from "@/lib/realtime/utils";
 import { scheduleAutoDraft } from "@/lib/agent/jobs/utils";
 import { buildNewMessageNotification } from "@/lib/email/inbound-notification";
+import { isPushMuted } from "@/lib/push/muted";
 
 export type InboundQueueMessage = {
 	from: string;
@@ -266,13 +267,14 @@ export async function processInboundMessage(
 			decision.mailbox.mailboxId,
 			decision.mailbox.userId,
 		);
+		const inboxAddress = `${decision.mailbox.localPart}@${decision.mailbox.hostname}`;
 		await notifyUsersOfNewMessage(env, notificationUserIds, buildNewMessageNotification({
 			messageId,
 			mailboxId: decision.mailbox.mailboxId,
 			fromAddr,
 			contact,
 			subject: parsed.subject,
-		}));
+		}), { push: !isPushMuted(env.PUSH_MUTED_ADDRESSES, inboxAddress) });
 	}
 	// Spam and blocked mail carry an unauthenticated From; consumers acting on it would be fooled.
 	if (status !== "spam" && status !== "trash") {
